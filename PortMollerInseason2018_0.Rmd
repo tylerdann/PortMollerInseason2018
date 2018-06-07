@@ -100,7 +100,7 @@ CreateControlFile.GCL(sillyvec=BristolBay146Pops,loci=loci24Theta2,mixname="SPMO
 dir.create("BAYES/Output/SPMOL17_9_Jul9toJul11")
 ```
 
-### Summarize estimates, format for update, create prior for next stratum and update estimate matrix
+### Summarize estimates, format for update, create prior for next stratum, update estimate matrix and save this stratum's workspace
 ```{r Summarize estimates, prepare update pdfs and prep for next stratum}
 ## Copied RGNs from last year's output directory to this year's
 
@@ -124,6 +124,8 @@ PortMollerInterannualComparison.f(NewData=SPMOL17_9_Jul9toJul11_Estimates,Period
 # Estimates.2018[,1] <- SPMOL17_9_Jul9toJul11_Estimates[[1]][,1]
 # dimnames(Estimates.2018)[[2]][1] <- "7/9-11"
 # dput(Estimates.2018,file="Objects/Estimates.2018.txt")
+
+# save.image("2018PortMollerInseason_0.RData")
 
 ```
 
