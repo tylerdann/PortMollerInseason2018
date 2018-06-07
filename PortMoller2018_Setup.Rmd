@@ -5,10 +5,10 @@ date: "June 6, 2018"
 output: html_document
 ---
 
-##Set up functions to be used in 2018
+## Set up functions to be used in 2018
 While the style of our inseason updates is somewhat dated, they are really R approximations of excel figures that used to be pasted into a powerpoint file, stakeholders have communicated to us that processors and fishermen are comfortable with the format and discourage us from changing the format. Leaving 2006 behind in the historical comparison set of stacked barplots to keep the update to five pages.  Setting this markdown as part of PorMollerInseason2018 project for archiving in github repository.
 
-###Get functions and load packages
+### Get functions and load packages
 ```{r Workspace setup, echo=TRUE, message=FALSE}
 save.image("V:/Analysis/2_Central/Sockeye/Bristol Bay/PortMollerInseason2018/2018PortMollerInseason_Setup.RData")
 source("C:/Users/thdann/Documents/R/Functions.GCL.r")
@@ -19,7 +19,7 @@ library(xlsx)
 library(gplots)
 ```
 
-###Bring in historical estimates and objects needed to define functions
+### Bring in historical estimates and objects needed to define functions
 ```{r dget historical estimates and objects for function definition, echo=TRUE, message=FALSE}
 HistEstObs <- unlist(strsplit(list.files("V:/Analysis/2_Central/Sockeye/Bristol Bay/2017 Port Moller Inseason/HistoricalEstimatesObjects"),'.txt'))
 for(ob in HistEstObs){
@@ -40,7 +40,7 @@ layout(StackedBarLayoutMatrix, widths=c(1,0.3), heights=c(0.25,1,1,1),respect=F)
 layout.show(5)
 ```
 
-###Set up historical stacked barplots 
+### Set up historical stacked barplots 
 ```{r Historical stacked barplots not used in functions, echo=TRUE, message=FALSE}
 dir.create("Updates")
 ## 2007-2009
@@ -158,7 +158,7 @@ dev.off()
 dev.off()
 ```
 
-###Define function for most recent years historical comparison
+### Define function for most recent years historical comparison
 ```{r Define function for recent historical years stacked barplot page, echo=TRUE, message=FALSE}
 dir.create("Objects")
 Estimates.2018 <- matrix(data=rep(1/11,11),nrow=11,ncol=13,byrow=F,dimnames=list(BristolBayNames,
@@ -218,7 +218,7 @@ dput(BristolBayColors,file="Objects/BristolBayColors.txt")
 dput(BristolBayNames,file="Objects/BristolBayNames.txt")
 ```
 
-###Define function for front daily report page of update
+### Define function for front daily report page of update
 ```{r Set up front page report function, echo=TRUE, message=FALSE}
 dir.create("News Releases")
 
@@ -302,7 +302,7 @@ dput(StackedBarLayoutMatrix, "Objects/StackedBarLayoutMatrix.txt")
 dput(BristolBay146Pop11GroupVec, "Objects/BristolBay146Pop11GroupVec.txt")
 ```
 
-###Set up directories needed for MSA
+### Set up directories needed for MSA
 ```{r Directories, echo=TRUE, message=FALSE}
 dir.create("ADF&G Age Comp updates")
 dir.create("ADF&G Run Summary updates")
