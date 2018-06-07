@@ -1,0 +1,304 @@
+---
+title: "PortMoller2018_Setup"
+author: "Tyler Dann"
+date: "June 6, 2018"
+output: html_document
+---
+
+##Set up functions to be used in 2018
+While the style of our inseason updates is somewhat dated, they are really R approximations of excel figures that used to be pasted into a powerpoint file, stakeholders have communicated to us that processors and fishermen are comfortable with the format and discourage us from changing the format. Leaving 2006 behind in the historical comparison set of stacked barplots to keep the update to five pages.  Setting this markdown as part of PorMollerInseason2018 project for archiving in github repository.
+
+###Get functions and load packages
+```{r Workspace setup, echo=TRUE, message=FALSE}
+save.image("V:/Analysis/2_Central/Sockeye/Bristol Bay/PortMollerInseason2018/2018PortMollerInseason_Setup.RData")
+source("C:/Users/thdann/Documents/R/Functions.GCL.r")
+# source("C:\\Users\\awbarclay\\Documents\\R\\GitHubCloneFunctions.R")
+## Libraries
+library(abind)
+library(xlsx)
+library(gplots)
+```
+
+###Bring in historical estimates and objects needed to define functions
+```{r dget historical estimates and objects for function definition, echo=TRUE, message=FALSE}
+HistEstObs <- unlist(strsplit(list.files("V:/Analysis/2_Central/Sockeye/Bristol Bay/2017 Port Moller Inseason/HistoricalEstimatesObjects"),'.txt'))
+for(ob in HistEstObs){
+  assign(ob, dget(paste0("V:/Analysis/2_Central/Sockeye/Bristol Bay/2017 Port Moller Inseason/HistoricalEstimatesObjects/",ob,'.txt')))
+}
+Estimates.2017 <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2017 Port Moller Inseason/Objects/Estimates.2017.txt")
+
+BristolBayNames <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2011 Baseline/Objects/BristolBayNames.txt")
+BristolBayColors <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2015 Port Moller Inseason/Objects/BristolBayColors.txt")
+StackedBarLayoutMatrix <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2015 Port Moller Inseason/Objects/StackedBarLayoutMatrix.txt")
+
+wrapper <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2015 Port Moller Inseason/Objects/wrapper.txt")
+layoutmatrix2 <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2015 Port Moller Inseason/Objects/layoutmatrix2.txt")
+
+BristolBay146Pop11GroupVec <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay146Pop11GroupVec.txt")
+
+layout(StackedBarLayoutMatrix, widths=c(1,0.3), heights=c(0.25,1,1,1),respect=F)
+layout.show(5)
+```
+
+###Set up historical stacked barplots 
+```{r Historical stacked barplots not used in functions, echo=TRUE, message=FALSE}
+dir.create("Updates")
+## 2007-2009
+par(family="serif")
+pdf("Updates/2007-2009PortMollerInseasonComparison.pdf",family="Times",width=8.5,height=11,title="Historical Comparison of Stock Composition Estimates 2007-2009")
+layout(StackedBarLayoutMatrix, widths=c(1,0.3), heights=c(0.2,0.8,0.8,1),respect=F)
+#Plot 1
+par(mar=c(0,0,4,0))
+plot.new()
+text(x=0.5,y=0.5,labels="Historical Comparison of Stock Composition Estimates",font=2,adj=c(0.5,0.5),cex=2.5)
+#Plot 2
+par(mar=c(5,9,4,0))
+Stacked2009Barplot <- barplot2(height=Estimates.2009,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+abline(h=0)
+mtext(text="2009",side=3,line=1,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2009Barplot,labels=F)
+text(x=Stacked2009Barplot,labels=dimnames(Estimates.2009)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 3
+par(mar=c(5,9,4,0))
+Stacked2008Barplot <- barplot2(height=Estimates.2008,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+abline(h=0)
+mtext(text="2008",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Proportion of Catch",side=2,line=3,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2008Barplot,labels=F)
+text(x=Stacked2008Barplot,labels=dimnames(Estimates.2008)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 4
+par(mar=c(12,9,4,0))
+Stacked2007Barplot <- barplot2(height=Estimates.2007,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+mtext(text="2007",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Date",side=1,line=7,adj=0.5,cex=1.5)
+abline(h=0)
+axis(side=1,at=Stacked2007Barplot,labels=F)
+text(x=Stacked2007Barplot,labels=dimnames(Estimates.2007)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 5
+par(mar=c(0,0,0,3))
+plot.new()
+legend(x=-0.087,y=0.694,legend=rev(BristolBayNames),fill=rev(BristolBayColors),border=rev(BristolBayColors),bty="n",cex=1.7)
+dev.off()
+dev.off()
+
+## 2010-2012
+par(family="serif")
+pdf("Updates/2010-2012PortMollerInseasonComparison.pdf",family="Times",width=8.5,height=11,title="Historical Comparison of Stock Composition Estimates 2010-2012")
+layout(StackedBarLayoutMatrix, widths=c(1,0.3), heights=c(0.2,0.8,0.8,1),respect=F)
+#Plot 1
+par(mar=c(0,0,4,0))
+plot.new()
+text(x=0.5,y=0.5,labels="Historical Comparison of Stock Composition Estimates",font=2,adj=c(0.5,0.5),cex=2.5)
+#Plot 2
+par(mar=c(5,9,4,0))
+Stacked2012Barplot <- barplot2(height=Estimates.2012,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+abline(h=0)
+mtext(text="2012",side=3,line=1,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2012Barplot,labels=F)
+text(x=Stacked2012Barplot,labels=dimnames(Estimates.2012)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 3
+par(mar=c(5,9,4,0))
+Stacked2011Barplot <- barplot2(height=Estimates.2011,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+abline(h=0)
+mtext(text="2011",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Proportion of Catch",side=2,line=3,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2011Barplot,labels=F)
+text(x=Stacked2011Barplot,labels=dimnames(Estimates.2011)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 4
+par(mar=c(12,9,4,0))
+Stacked2010Barplot <- barplot2(height=Estimates.2010,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+mtext(text="2010",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Date",side=1,line=7,adj=0.5,cex=1.5)
+abline(h=0)
+axis(side=1,at=Stacked2010Barplot,labels=F)
+text(x=Stacked2010Barplot,labels=dimnames(Estimates.2010)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 5
+par(mar=c(0,0,0,3))
+plot.new()
+legend(x=-0.087,y=0.694,legend=rev(BristolBayNames),fill=rev(BristolBayColors),border=rev(BristolBayColors),bty="n",cex=1.7)
+dev.off()
+dev.off()
+
+## 2013-2015
+par(family="serif")
+pdf("Updates/2013-2015PortMollerInseasonComparison.pdf",family="Times",width=8.5,height=11,title="Historical Comparison of Stock Composition Estimates 2013-2015")
+layout(StackedBarLayoutMatrix, widths=c(1,0.3), heights=c(0.2,0.8,0.8,1),respect=F)
+#Plot 1
+par(mar=c(0,0,4,0))
+plot.new()
+text(x=0.5,y=0.5,labels="Historical Comparison of Stock Composition Estimates",font=2,adj=c(0.5,0.5),cex=2.5)
+#Plot 2
+par(mar=c(5,9,4,0))
+Stacked2015Barplot <- barplot2(height=Estimates.2015,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+abline(h=0)
+mtext(text="2015",side=3,line=1,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2015Barplot,labels=F)
+text(x=Stacked2015Barplot,labels=dimnames(Estimates.2015)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 3
+par(mar=c(5,9,4,0))
+Stacked2014Barplot <- barplot2(height=Estimates.2014,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+abline(h=0)
+mtext(text="2014",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Proportion of Catch",side=2,line=3,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2014Barplot,labels=F)
+text(x=Stacked2014Barplot,labels=dimnames(Estimates.2014)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 4
+par(mar=c(12,9,4,0))
+Stacked2013Barplot <- barplot2(height=Estimates.2013,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n")
+mtext(text="2013",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Date",side=1,line=7,adj=0.5,cex=1.5)
+abline(h=0)
+axis(side=1,at=Stacked2013Barplot,labels=F)
+text(x=Stacked2013Barplot,labels=dimnames(Estimates.2013)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 5
+par(mar=c(0,0,0,3))
+plot.new()
+legend(x=-0.087,y=0.694,legend=rev(BristolBayNames),fill=rev(BristolBayColors),border=rev(BristolBayColors),bty="n",cex=1.7)
+dev.off()
+dev.off()
+```
+
+###Define function for most recent years historical comparison
+```{r Define function for recent historical years stacked barplot page, echo=TRUE, message=FALSE}
+dir.create("Objects")
+Estimates.2018 <- matrix(data=rep(1/11,11),nrow=11,ncol=13,byrow=F,dimnames=list(BristolBayNames,
+	c("6/10-XX","","","","","","","","","","","","")))
+Estimates.2018[,2:13] <- NA
+
+PortMollerInterannualComparison.f <- function(NewData=XX,Period=X,MonthNum=X,Start=XX,End=XX){
+
+## Update the 2018 estimate object:
+Estimates.2018[,Period] <- NewData[[1]][,1]
+dimnames(Estimates.2018)[[2]][Period] <- paste(MonthNum,"/",Start,"-",End,sep='')
+
+par(family="serif")
+pdf(paste("Updates/2016-2018PortMollerInseasonComparison",Period,".pdf",sep=''),family="Times",width=8.5,height=11,title="Historical Comparison of Stock Composition 
+Estimates Late")
+layout(StackedBarLayoutMatrix, widths=c(1,0.3), heights=c(0.2,0.8,0.8,1),respect=F)
+#Plot 1
+par(mar=c(0,0,4,0))
+plot.new()
+text(x=0.5,y=0.5,labels="Historical Comparison of Stock Composition Estimates",font=2,adj=c(0.5,0.5),cex=2.5)
+#Plot 2
+par(mar=c(5,9,4,0))
+Stacked2018Barplot <- barplot2(height=Estimates.2018,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n",ylim=c(0,1))
+abline(h=0)
+mtext(text="2018",side=3,line=1,adj=0.5,cex=1.5)
+axis(side=1,at=Stacked2018Barplot,labels=F)
+text(x=Stacked2018Barplot,labels=dimnames(Estimates.2018)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 3
+par(mar=c(5,9,4,0))
+Stacked2017Barplot <- barplot2(height=Estimates.2017,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n",ylim=c(0,1))
+mtext(text="2017",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Proportion of Catch",side=2,line=3,adj=0.5,cex=1.5)
+abline(h=0)
+axis(side=1,at=Stacked2017Barplot,labels=F)
+text(x=Stacked2017Barplot,labels=dimnames(Estimates.2017)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 4
+par(mar=c(12,9,4,0))
+Stacked2016Barplot <- barplot2(height=Estimates.2016,beside=F,col=BristolBayColors,main="",cex.names=0.9,xaxt="n",ylim=c(0,1))
+mtext(text="2016",side=3,line=1,adj=0.5,cex=1.5)
+mtext(text="Date",side=1,line=7,adj=0.5,cex=1.5)
+abline(h=0)
+axis(side=1,at=Stacked2016Barplot,labels=F)
+text(x=Stacked2016Barplot,labels=dimnames(Estimates.2016)[[2]],srt=45,par("usr")[3]-0.1,adj=1,xpd=T,cex=1.5)
+#Plot 5
+par(mar=c(0,0,0,3))
+plot.new()
+legend(x=-0.087,y=0.694,legend=rev(BristolBayNames),fill=rev(BristolBayColors),border=rev(BristolBayColors),bty="n",cex=1.7)
+dev.off()
+dev.off()
+}
+
+dput(PortMollerInterannualComparison.f,file="Objects/PortMollerInterannualComparison.f.txt")
+dput(Estimates.2016,file="Objects/Estimates.2016.txt")
+dput(Estimates.2017,file="Objects/Estimates.2017.txt")
+dput(Estimates.2018,file="Objects/Estimates.2018.txt")
+dput(BristolBayColors,file="Objects/BristolBayColors.txt")
+dput(BristolBayNames,file="Objects/BristolBayNames.txt")
+```
+
+###Define function for front daily report page of update
+```{r Set up front page report function, echo=TRUE, message=FALSE}
+dir.create("News Releases")
+
+PortMollerInseasonReport.f <- function(NewData=XX,Period=period,NumSampled=Sampled,NumAnalyzed=Analyzed,Included=190,Month=6,Start=16,End=17){
+
+PortMollerReportMainText <- paste("Genetic stock composition estimates for sockeye salmon from the Port Moller Test Fishery for ",Month," ",Start,"-",End,", 2018. A 
+total of ",NumSampled," fish were sampled and ",NumAnalyzed," were analyzed (",Included," had adequate data to include in the analysis).",sep='')
+
+pdf(paste("Updates/2018PortMollerInseason",Period,".pdf",sep=''),family="Times",width=8.5,height=11,title=paste("2018 Port Moller Inseason",Period,sep=''))
+layout(layoutmatrix2, widths=c(0.3,1,0.3), heights=c(0.6,0.6,1),respect=F)
+par(family="serif")
+## Plot 1:
+par(mar=c(0,4,6,4))
+plot(1:8,type="n",axes=F,xlab="",ylab="")
+text(x=4.5,y=8,labels="Bristol Bay Sockeye Salmon Fishery",adj=c(0.5,1),font=2,cex=2.75)
+text(x=4.5,y=6,labels="Port Moller Sockeye Salmon Stock Composition Summary",adj=c(0.5,1),font=2,cex=2)
+text(x=4.5,y=5,labels=paste(Month," ",Start,"-",End,", 2018 - All Stations",sep=''),adj=c(0.5,1),font=2,cex=2)
+text(x=1,y=2,labels=wrapper(PortMollerReportMainText, width = 100),adj=c(0,0),cex=1.5)
+## Plot 2:
+par(mar=c(3,0,0,0))
+plot(1:14,type="n",axes=F,xlab="",ylab="")
+arrows(x0=0,y0=14.5,x1=14,y1=14.5, length=0)
+text(x=11.25,y=14,labels="90%",adj=0,font=2,cex=1.25)
+text(x=7.1,y=14,labels="Stock",adj=0.5,font=2,cex=1.25)
+text(x=c(7.1,11.75),y=13,labels=c("Composition","Confidence Intervals"),adj=0.5,font=2,cex=1.25)
+text(x=1,y=12,labels="Reporting Group",adj=0,font=2,cex=1.25)
+text(x=c(7.1,10.5,13),y=12,labels=c("Estimate","Lower","Upper"),adj=0.5,font=2,cex=1.25)
+arrows(x0=0,y0=11.5,x1=14,y1=11.5, length=0)
+text(x=1,y=1:11,labels=BristolBayNames,adj=0,cex=1.25)
+text(x=7.5,y=1:11,labels=sprintf("%.1f%%", NewData[[1]][,'mean']*100),adj=1,cex=1.25)
+text(x=11,y=1:11,labels=sprintf("%.1f%%", NewData[[1]][,'5%']*100),adj=1,cex=1.25)
+text(x=13.5,y=1:11,labels=sprintf("%.1f%%", NewData[[1]][,'95%']*100),adj=1,cex=1.25)
+arrows(x0=0,y0=0.5,x1=14,y1=0.5, length=0)
+## Plot 3:
+par(mar=c(14,9,4,8))
+mainplot <- barplot2(rev(NewData[[1]][,'mean'])*100,main="",ci.u=rev(NewData[[1]][,'95%'])*100,ci.l=rev(NewData[[1]][,'5%'])*100,ylab="",xlab="",
+	ylim=c(0,50),col="blue",cex.names=1,plot.ci=T,plot.grid=T,grid.inc=5,grid.lty=1,xaxt="n")
+axis(side=1,at=mainplot,labels=F)
+text(x=mainplot,labels=rev(BristolBayNames),srt=45,par("usr")[3]-2,adj=1,xpd=T,cex=1.5)
+mtext(paste("Genetic Stock Composition Estimates for Sockeye Salmon Captured in the\nPort Moller Test Fishery, ",Month," ",Start,"-",End,", 2018 (All Stations).",sep=''),side=3,line=1,cex=1.25,font=2,adj=0.5)
+mtext("Reporting Group",side=1,line=5,cex=1.25,font=2,adj=0.5)
+mtext("Stock Composition Estimate (%)",side=2,line=3,cex=1.25,font=2,adj=0.5,las=3)
+mtext("The genetic analysis was completed by the Alaska Department of Fish and Game, Division of Commercial Fisheries, Gene\nConservation Laboratory.",
+	side=1,line=8,cex=0.75,adj=0)
+dev.off()
+
+PortMollerReleaseText <- paste("This is the Alaska Department of Fish and Game with an update regarding genetic stock composition estimates for sockeye salmon from the Port Moller Test Fishery for ",Month," ",Start,"-",End,", 2018. A total of ",NumSampled," fish were sampled and ",NumAnalyzed," were analyzed (",Included," had adequate data to include in the analysis).  These and past results can be found at: http://www.adfg.alaska.gov/index.cfm?adfg=fishinggeneconservationlab.bbaysockeye_results",sep='')
+cat(PortMollerReleaseText,file=paste("News Releases/2018PortMollerInseason",Period,".txt",sep=''))
+PortMollerReleaseTable <- cbind(c('','Reporting','Group',rev(BristolBayNames)),c('Stock','Composition','Estimate',rev(sprintf("%.1f%%", NewData[[1]][,'mean']*100))),c('90%','Confidence Intervals','Lower',rev(sprintf("%.1f%%", NewData[[1]][,'5%']*100))),c('','','Upper',rev(sprintf("%.1f%%", NewData[[1]][,'95%']*100))))
+write.csv(PortMollerReleaseTable,file=paste("News Releases/2018PortMollerInseason",Period,".csv",sep=''),row.names=F)
+}
+
+dput(PortMollerInseasonReport.f,file="Objects/PortMollerInseasonReport.f.txt")
+```
+
+### Create prior for first set of estimates based upon ADF&G preseason forecast  
+```{r First round prior, echo=TRUE, message=FALSE}
+BristolBay2018Forecast <- read.table(file='BristolBay2018Forecast.txt', header=T, sep='\t')
+PortMoller2018StartPrior <- Prior.GCL(groupvec=BristolBay146Pop11GroupVec,groupweights=BristolBay2018Forecast$Proportion,minval=0.01)
+dput(x=PortMoller2018StartPrior,file="Objects/PortMoller2018StartPrior.txt")
+```
+
+### Bring in other objects needed for inseason analyses and dput in 2018 directory to set up inseason template
+```{r Source objects needed for 2018 analyses and store in local directory}
+BristolBay146Pops <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay146Pops.txt")
+BristolBay14624Baseline <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay14624Baseline.txt")
+BristolBay146PopsInits <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay146PopsInits.txt") 
+loci24Theta2 <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/loci24Theta2.txt") 
+BristolBay14624MixtureFormat <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Port Moller Inseason/Objects/BristolBay14624MixtureFormat.txt")
+WASSIPSockeyeSeeds <- dget(file="V:/Analysis/5_Coastwide/Sockeye/WASSIP/Mixture/Objects/WASSIPSockeyeSeeds.txt")
+
+dput(BristolBay146Pops, "Objects/BristolBay146Pops.txt")
+dput(BristolBay14624Baseline, "Objects/BristolBay14624Baseline.txt")
+dput(BristolBay146PopsInits, "Objects/BristolBay146PopsInits.txt")
+dput(loci24Theta2, "Objects/loci24Theta2.txt")
+dput(BristolBay14624MixtureFormat, "Objects/BristolBay14624MixtureFormat.txt")
+dput(WASSIPSockeyeSeeds, "Objects/WASSIPSockeyeSeeds.txt")
+dput(wrapper, "Objects/wrapper.txt")
+dput(layoutmatrix2, "Objects/layoutmatrix2.txt")
+dput(StackedBarLayoutMatrix, "Objects/StackedBarLayoutMatrix.txt")
+dput(BristolBay146Pop11GroupVec, "Objects/BristolBay146Pop11GroupVec.txt")
+```
+
