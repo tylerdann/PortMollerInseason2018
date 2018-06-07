@@ -282,7 +282,7 @@ dput(x=PortMoller2018StartPrior,file="Objects/PortMoller2018StartPrior.txt")
 ```
 
 ### Bring in other objects needed for inseason analyses and dput in 2018 directory to set up inseason template
-```{r Source objects needed for 2018 analyses and store in local directory}
+```{r Source objects needed for 2018 analyses and store in local directory, echo=TRUE, message=FALSE}
 BristolBay146Pops <- dget("V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay146Pops.txt")
 BristolBay14624Baseline <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay14624Baseline.txt")
 BristolBay146PopsInits <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2013 Baseline/Objects/BristolBay146PopsInits.txt") 
@@ -300,5 +300,22 @@ dput(wrapper, "Objects/wrapper.txt")
 dput(layoutmatrix2, "Objects/layoutmatrix2.txt")
 dput(StackedBarLayoutMatrix, "Objects/StackedBarLayoutMatrix.txt")
 dput(BristolBay146Pop11GroupVec, "Objects/BristolBay146Pop11GroupVec.txt")
+```
+
+###Set up directories needed for MSA
+```{r Directories, echo=TRUE, message=FALSE}
+dir.create("ADF&G Age Comp updates")
+dir.create("ADF&G Run Summary updates")
+dir.create("BAYES")
+dir.create("BAYES/Mixture")
+dir.create("BAYES/Mixture/Old")
+dir.create("BAYES/Control")
+dir.create("BAYES/Control/Old")
+dir.create("BAYES/Output")
+dir.create("BBSRI updates")
+dir.create("Estimates tables")
+dir.create("FRI updates")
+dir.create("Genepop")
+dir.create("Output")
 ```
 
