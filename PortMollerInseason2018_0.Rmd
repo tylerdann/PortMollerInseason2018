@@ -1,0 +1,129 @@
+---
+title: "PortMollerInseason2018_0"
+author: "Tyler Dann"
+date: "June 7, 2018"
+output: html_document
+---
+
+## Set up template to be used for inseason analyses and run dry run with 2017 data
+This markdown lays out the template to be used for inseason analyses of Port Moller data in 2018.  Markdown is a new development but will hopefully make the process more standardized and reproducible.  Instead of tacking on additional inseason strata/analyses to a common script and overwriting the workspace, Andy and I will use separate markdown documents based upon this template with the naming convention "PortMollerInseason2018_1" for the first set of estimates, "PortMollerInseason2018_2" for the second, etc.
+
+### Get functions, objects and load packages
+```{r Workspace setup, echo=TRUE, message=FALSE}
+save.image("V:/Analysis/2_Central/Sockeye/Bristol Bay/PortMollerInseason2018/2018PortMollerInseason_0.RData")
+source("C:/Users/thdann/Documents/R/Functions.GCL.r")
+# source("C:\\Users\\awbarclay\\Documents\\R\\GitHubCloneFunctions.R")
+
+## Load necessary libraries, functions and objects
+
+## Libraries
+library(abind)
+library(xlsx)
+library(gplots)
+
+## Objects
+Obs <- unlist(strsplit(list.files("Objects"),'.txt'))
+for(ob in Obs){
+  assign(ob, dget(paste0("Objects/",ob,'.txt')))
+}
+```
+
+###Read in new genotypes
+```{r Read in genotypes - 2017 in this shakedown template}
+CreateLocusControl.GCL(markersuite="Sockeye2013BristolBay_24SNPs",username="thdann",password="sockeye1!") ## XX out password before committing to repository
+loci24 <- LocusControl$locusnames
+LOKI2R.GCL(sillyvec="SPMOL17",username="thdann",password="sockeye1!") ## XX out password before committing to repository
+```
+
+### Read in prior, define stratum, data QC, write out mixture, control and genepop files
+```{r Prepare for BAYES}
+
+## Read in prior for this stratum - July 9-11
+PortMoller2017Period9Prior <- dget(file="V:/Analysis/2_Central/Sockeye/Bristol Bay/2017 Port Moller Inseason/Objects/PortMoller2017Period9Prior.txt")
+
+## Defining stratum based on capture date
+SPMOL17_9_Jul9toJul11IDs <- AttributesToIDs.GCL(silly="SPMOL17",attribute="CAPTURE_DATE",matching=unique(SPMOL17.gcl$attributes$CAPTURE_DATE)[21:23])
+SPMOL17_9_Jul9toJul11IDs <- list(na.omit(SPMOL17_9_Jul9toJul11IDs))
+names(SPMOL17_9_Jul9toJul11IDs) <- "SPMOL17"
+PoolCollections.GCL("SPMOL17",loci=loci24,IDs=SPMOL17_9_Jul9toJul11IDs,newname="SPMOL17_9_Jul9toJul11")
+SPMOL17_9_Jul9toJul11.gcl$n ## 190
+
+## Data QC
+## Sample size by locus
+Original_SPMOL17_9_Jul9toJul11_SampleSizebyLocus <- SampSizeByLocus.GCL("SPMOL17_9_Jul9toJul11",loci24)
+min(Original_SPMOL17_9_Jul9toJul11_SampleSizebyLocus) ## 172, 13 were failures.
+apply(Original_SPMOL17_9_Jul9toJul11_SampleSizebyLocus,1,min)/apply(Original_SPMOL17_9_Jul9toJul11_SampleSizebyLocus,1,max)
+
+## Original number of individuals
+Original_SPMOL17_9_Jul9toJul11_ColSize <- SPMOL17_9_Jul9toJul11.gcl$n
+
+## Remove individuals with >20% missing data
+SPMOL17_9_Jul9toJul11_MissLoci <- RemoveIndMissLoci.GCL(sillyvec="SPMOL17_9_Jul9toJul11", proportion=0.8)
+
+## Number of individuals post-Miss Loci
+ColSize_SPMOL17_9_Jul9toJul11_PostMissLoci <- SPMOL17_9_Jul9toJul11.gcl$n
+
+SPMOL17_9_Jul9toJul11_SampleSizes <- matrix(data=NA,nrow=1,ncol=4,dimnames=list("SPMOL17_9_Jul9toJul11",
+                                                                               c("Genotyped","Missing","Duplicate","Final")))
+SPMOL17_9_Jul9toJul11_SampleSizes[,1] <- Original_SPMOL17_9_Jul9toJul11_ColSize
+SPMOL17_9_Jul9toJul11_SampleSizes[,2] <- Original_SPMOL17_9_Jul9toJul11_ColSize-ColSize_SPMOL17_9_Jul9toJul11_PostMissLoci
+
+## Check for duplicate individuals.
+SPMOL17_9_Jul9toJul11_DuplicateCheck95MinProportion <- CheckDupWithinSilly.GCL(sillyvec="SPMOL17_9_Jul9toJul11",loci=loci24,quantile=NULL,minproportion=0.95)
+
+## Remove duplicate individuals
+SPMOL17_9_Jul9toJul11_RemovedDups <- RemoveDups.GCL(SPMOL17_9_Jul9toJul11_DuplicateCheck95MinProportion)
+
+## Number of individuals after removing duplicate individuals
+ColSize_SPMOL17_9_Jul9toJul11_PostDuplicate <- SPMOL17_9_Jul9toJul11.gcl$n
+
+SPMOL17_9_Jul9toJul11_SampleSizes[,3] <- ColSize_SPMOL17_9_Jul9toJul11_PostMissLoci-ColSize_SPMOL17_9_Jul9toJul11_PostDuplicate
+SPMOL17_9_Jul9toJul11_SampleSizes[,4] <- ColSize_SPMOL17_9_Jul9toJul11_PostDuplicate
+
+write.csv(SPMOL17_9_Jul9toJul11_SampleSizes,file="Output/SPMOL17_9_Jul9toJul11_SampleSizes.csv")
+
+## Combine loci
+CombineLoci.GCL(sillyvec="SPMOL17_9_Jul9toJul11",markerset=c("One_MHC2_251","One_MHC2_190"),delim=".",update=T)
+
+## Dumping mixture file:
+CreateMixture.GCL(sillys="SPMOL17_9_Jul9toJul11",loci=loci24Theta2,IDs=NULL,mixname="SPMOL17_9_Jul9toJul11",dir="BAYES/Mixture",type="BAYES",PT=FALSE)
+
+## Kick out Genepop file to look for gross excesses of hets - using HWE probability test option with default settings to see P-values w/ Fis:
+gcl2Genepop.GCL(sillyvec="SPMOL17_9_Jul9toJul11", loci=loci24[-3],path="Genepop/SPMOL17_9_Jul9toJul11_23nuclearloci.gen",VialNums=TRUE)
+
+## Dump Control Files
+CreateControlFile.GCL(sillyvec=BristolBay146Pops,loci=loci24Theta2,mixname="SPMOL17_9_Jul9toJul11",basename="BristolBay146Pops24Markers",suffix="",nreps=40000,
+                      nchains=5,groupvec=BristolBay146Pop11GroupVec,priorvec=PortMoller2017Period9Prior,initmat=BristolBay146PopsInits,dir="BAYES/Control",
+                      seeds=WASSIPSockeyeSeeds,thin=c(1,1,100),mixfortran=BristolBay14624MixtureFormat,basefortran=BristolBay14624Baseline,switches="F T F T T T F")
+
+## Create output directory
+dir.create("BAYES/Output/SPMOL17_9_Jul9toJul11")
+```
+
+### Summarize estimates, format for update, create prior for next stratum and update estimate matrix
+```{r Summarize estimates, prepare update pdfs and prep for next stratum}
+## Copied RGNs from last year's output directory to this year's
+
+## Summarizing estimates
+SPMOL17_9_Jul9toJul11_Estimates <- CustomCombineBAYESOutput.GCL(groupvec=1:11,groupnames=BristolBayNames,maindir="BAYES/Output",mixvec="SPMOL17_9_Jul9toJul11",
+                                                                prior="",ext="RGN",nchains=5,burn=0.5,alpha=0.1,PosteriorOutput=FALSE)
+dput(SPMOL17_9_Jul9toJul11_Estimates,'Objects/SPMOL17_9_Jul9toJul11_Estimates.txt')
+
+## This is the formatting and writing of tables of estimates
+write.csv(x=SPMOL17_9_Jul9toJul11_Estimates[[1]], file="Estimates tables/SPMOL17_9_Jul9toJul11_Estimates Table.csv")
+
+PortMollerInseasonReport.f(NewData=SPMOL17_9_Jul9toJul11_Estimates,Period=9,NumSampled=251,NumAnalyzed=190,Included=176,Month="July",Start=9,End=11)
+
+PortMollerInterannualComparison.f(NewData=SPMOL17_9_Jul9toJul11_Estimates,Period=12,MonthNum=7,Start=9,End=11)
+
+## Creating and dputting prior for the next round - not doing in this preseason set up but preparing template
+# PortMoller2018Period2Prior <- Prior.GCL(groupvec=BristolBay146Pop11GroupVec,groupweights=SPMOL17_9_Jul9toJul11_Estimates[[1]][,1],minval=0.01)
+# dput(PortMoller2018Period2Prior,file="Objects/PortMoller2018Period2Prior.txt")
+
+## Updating 2017 matrix and dputting for next round - not doing in this preseason set up but preparing template
+# Estimates.2018[,1] <- SPMOL17_9_Jul9toJul11_Estimates[[1]][,1]
+# dimnames(Estimates.2018)[[2]][1] <- "7/9-11"
+# dput(Estimates.2018,file="Objects/Estimates.2018.txt")
+
+```
+
